@@ -1,0 +1,15 @@
+*
+!.gitignore
+
+!iterm/
+!vim/
+!iterm/**
+!vim/**
+vim/temp/undodir/**
+
+!macos
+!brew.sh
+!install.sh
+!update.sh
+!vimrc
+!zshrc
