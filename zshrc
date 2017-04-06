@@ -26,6 +26,18 @@ export NVM_DIR="$HOME/.nvm"
 # This loads RSVM
 [[ -s /Users/osmanmesutozcan/.rsvm/rsvm.sh ]] && . /Users/osmanmesutozcan/.rsvm/rsvm.sh
 
+# pip zsh completion start
+function _pip_completion {
+  local words cword
+  read -Ac words
+  read -cn cword
+  reply=( $( COMP_WORDS="$words[*]" \
+             COMP_CWORD=$(( cword-1 )) \
+             PIP_AUTO_COMPLETE=1 $words[1] ) )
+}
+compctl -K _pip_completion pip
+# pip zsh completion end
+
 ########## Handy scripts ##########
 # mkdir, cd into it
 mkcd() {
@@ -36,4 +48,10 @@ mkcd() {
 # move file to trash
 sfr() {
   mv -v "$*" $HOME/.Trash
+}
+
+# launch chrome in fullscreen
+chrome() {
+  osascript -e 'tell application "Google Chrome" to activate'
+  osascript -e 'tell application "System Events" to keystroke "f" using {control down, command down}'
 }

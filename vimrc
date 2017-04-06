@@ -34,9 +34,6 @@ set expandtab
 set cindent
 set smartcase
 
-" Line number
-set number
-
 " Link break
 set lbr
 set tw=120
@@ -97,10 +94,25 @@ set laststatus=2                             " always show statusbar
 map <space> /
 
 " Buffer
-map <leader>bd :bd<cr>:tabclose<cr>gT
 map <leader>l :bnext<cr>
 map <leader>h :bprevious<cr>
 
+" Tabs
+map <c-t><right> :tabnext<cr>
+map <c-t><left> :tabprevious<cr>
+map <c-t>q :tabclose<cr>
+map <c-t>n :call LaunchNewTabWithNetrw()<cr>
+
+" Netrw
+map <leader>nn :Explore<cr>
+map <leader>nh :Hex<cr>
+map <leader>nv :Vex<cr>
+
+" CtrlP
+map <c-b> :CtrlPBuffer<cr>
+
+" AG
+map <leader>g :Ag 
 
 """""""""""""""""""""""""""""""""""""""""""""
 " FILETYPES
@@ -112,27 +124,20 @@ au FileType python syn keyword pythonDecorator True None False self
 au BufNewFile,BufRead *.jinja set syntax=htmljinja
 au BufNewFile,BufRead *.mako set ft=mako
 au FileType python map <buffer> F :set foldmethod=indent<cr>
-au FileType python inoremap <buffer> $r return
-au FileType python inoremap <buffer> $i import
-au FileType python inoremap <buffer> $p print
-au FileType python inoremap <buffer> $f #--- <esc>a
-au FileType python map <buffer> <leader>1 /class
-au FileType python map <buffer> <leader>2 /def
-au FileType python map <buffer> <leader>C ?class
-au FileType python map <buffer> <leader>D ?def
 au FileType python set cindent
 au FileType python set cinkeys-=0#
 au FileType python set indentkeys-=0#
+"
+" Highlight docstrings as comments, not string.
+syn region pythonDocstring  start=+^\s*[uU]\?[rR]\?"""+ end=+"""+ keepend excludenl contains=pythonEscape,@Spell,pythonDoctest,pythonDocTest2,pythonSpaceError
+syn region pythonDocstring  start=+^\s*[uU]\?[rR]\?'''+ end=+'''+ keepend excludenl contains=pythonEscape,@Spell,pythonDoctest,pythonDocTest2,pythonSpaceError
+
+hi def link pythonDocstring pythonComment
 
 " Javascript
 au FileType javascript call JavaScriptFold()
 au FileType javascript setl fen
 au FileType javascript setl nocindent
-au FileType javascript imap <c-t> $log();<esc>hi
-au FileType javascript imap <c-a> alert();<esc>hi
-au FileType javascript inoremap <buffer> $r return
-au FileType javascript inoremap <buffer> $i import
-au FileType javascript inoremap <buffer> $f //--- PH<esc>FP2xi
 
 function! JavaScriptFold()
     setl foldmethod=syntax
@@ -154,12 +159,16 @@ endfunction
 " Vim-plug
 call plug#begin('~/.dotfiles/vim/plugged')
 
-Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] }                  " Nerdtree
+Plug 'rking/ag.vim'                                                                       " Silver Searcher
 Plug 'ctrlpvim/ctrlp.vim'                                                                 " CtrlP
+
 Plug 'jiangmiao/auto-pairs'                                                               " Bracket Complete
 Plug 'ntpeters/vim-better-whitespace'                                                     " Trailing whitespace highlight
-Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
+
+Plug 'sjl/gundo.vim'
+Plug 'rdnetto/YCM-Generator', { 'branch': 'stable', 'on': 'YcmGenerateConfig'}
+Plug 'Valloric/YouCompleteMe'
 
 Plug 'sheerun/vim-polyglot'
 
@@ -168,16 +177,20 @@ call plug#end()
 " Ctrlp
 let g:ctrlp_working_path_mode = 0
 let g:ctrlp_map = '<c-f>'
-map <leader>j :CtrlP<cr>
-map <c-b> :CtrlPBuffer<cr>
 let g:ctrlp_max_height = 20
 let g:ctrlp_custom_ignore = 'node_modules\|^\.DS_Store\|^\.git\|^\.coffee'
 
-" Nerdtree
-let g:NERDTreeWinPos = "right"
-let NERDTreeShowHidden=0
-let NERDTreeIgnore = ['\.pyc$', '__pycache__', '/node_modules']
-let g:NERDTreeWinSize=35
-map <leader>nn :NERDTreeToggle<cr>
-map <leader>nb :NERDTreeFromBookmark
-map <leader>nf :NERDTreeFind<cr>
+" Netrw
+let g:netrw_liststyle = 3
+
+" AG
+let g:ag_working_path_mode="r"
+
+"""""""""""""""""""""""""""""""""""""""""""""
+" FUNCTIONS
+"""""""""""""""""""""""""""""""""""""""""""""
+
+function! LaunchNewTabWithNetrw()
+  :tabnew
+  :Explore
+endfunction

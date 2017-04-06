@@ -5,6 +5,9 @@
 # Install GNU core utilities (those that come with macOS are outdated).
 # Don’t forget to add `$(brew --prefix coreutils)/libexec/gnubin` to `$PATH`.
 brew install coreutils
+# Install autotools
+brew install autoconf
+brew install automake
 
 # Install some other useful utilities like `sponge`.
 brew install moreutils
@@ -25,6 +28,9 @@ brew install wget --with-iri
 brew install ringojs
 brew install narwhal
 
+# Install Python3
+brew install python3
+
 # Install more recent versions of some macOS tools.
 brew install macvim
 brew install homebrew/dupes/grep
@@ -37,17 +43,6 @@ brew tap bramstein/webfonttools
 brew install sfnt2woff
 brew install sfnt2woff-zopfli
 brew install woff2
-
-# Install quicklook extentions
-brew cask install qlcolorcode
-brew cask install qlstephen
-brew cask install qlmarkdown
-brew cask install quicklook-json
-brew cask install qlprettypatch
-brew cask install betterzipql
-brew cask install quicklook-csv
-brew cask install qlimagesize
-brew cask install suspicious-package
 
 # Install some CTF tools; see https://github.com/ctfs/write-ups.
 brew cask install java
@@ -81,6 +76,7 @@ brew install the_silver_searcher
 brew install dark-mode
 brew install git
 brew install git-lfs
+brew install gdb
 brew install imagemagick --with-webp
 brew install lua
 brew install lynx
@@ -96,7 +92,6 @@ brew install tree
 brew install vbindiff
 brew install webkit2png
 brew install zopfli
-brew install newsbeuter
 
 # Remove outdated versions from the cellar.
 brew cleanup
