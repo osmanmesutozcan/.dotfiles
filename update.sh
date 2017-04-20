@@ -1,2 +1,3 @@
-cp -frv ~/.dotfiles/vimrc ~/.vimrc
-cp -frv ~/.dotfiles/zshrc ~/.zshrc
+ln -sfv ~/.dotfiles/vimrc ~/.vimrc
+ln -sfv ~/.dotfiles/zshrc ~/.zshrc
+ln -sfv ~/.dotfiles/bashrc ~/.bashrc

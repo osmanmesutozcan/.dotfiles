@@ -5,7 +5,6 @@
 !vim/
 !iterm/**
 !vim/**
-vim/temp/undodir/**
 
 !macos
 !brew.sh
@@ -13,3 +12,6 @@ vim/temp/undodir/**
 !update.sh
 !vimrc
 !zshrc
+
+vim/temp/undodir/**
+vim/plugged/**

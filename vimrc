@@ -65,7 +65,7 @@ set fillchars=""
 
 " Color Scheme
 se t_Co=256
-colorscheme sidonia
+colorscheme despacio
 
 try
   set termguicolors
