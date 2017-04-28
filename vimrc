@@ -27,7 +27,7 @@ set backspace=2
 set noshowmode
 
 " Indentation.
-set sw=2 ts=2 sts=2
+set sw=4 ts=4 sts=4
 set autoindent
 set smartindent
 set expandtab
@@ -63,18 +63,14 @@ set ignorecase
 " Seperator
 set fillchars=""
 
-" Color Scheme
-se t_Co=256
-colorscheme despacio
-
-try
-  set termguicolors
-catch
-endtry
-
 " Enable syntax highlighting.
 syntax on
 filetype plugin indent on
+
+" Color Scheme
+se t_Co=256
+colorscheme despacio
+hi Normal guibg=NONE ctermbg=NONE
 
 " Status bar
 set laststatus=2                             " always show statusbar
