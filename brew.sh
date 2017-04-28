@@ -9,6 +9,8 @@ brew install coreutils
 brew install autoconf
 brew install automake
 
+brew install gcc
+
 # Install some other useful utilities like `sponge`.
 brew install moreutils
 # Install GNU `find`, `locate`, `updatedb`, and `xargs`, `g`-prefixed.
