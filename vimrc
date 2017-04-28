@@ -194,3 +194,15 @@ function! LaunchNewTabWithNetrw()
   :tabnew
   :Explore
 endfunction
+
+" This is added by the install script.
+set runtimepath+=/Users/osmanmesutozcan/.dotfiles/vim
+
+
+" This is added by the install script.
+set runtimepath+=/Users/osmanmesutozcan/.dotfiles/vim
+
+
+" This is added by the install script.
+set runtimepath+=/Users/osmanmesutozcan/.dotfiles/vim
+

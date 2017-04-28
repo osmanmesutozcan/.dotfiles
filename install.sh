@@ -19,7 +19,7 @@ cp -frv $(pwd)/vimrc ~/.vimrc
 ln -frv $(pwd)/zshrc ~/.zshrc
 
 $(pwd)/macos
-&(pwd)/brew.sh
+$(pwd)/brew.sh
 
 echo "Basic configs are added please install brew"
 echo "and then run brew.sh script"
