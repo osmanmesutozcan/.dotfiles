@@ -81,6 +81,10 @@ set laststatus=2                             " always show statusbar
 :command W w
 :command Q q
 
+" NeoVim
+let g:python3_host_prog = '/usr/local/bin/python3'
+let g:python_host_prog = '/usr/local/bin/python'
+
 """""""""""""""""""""""""""""""""""""""""""""
 " KEYBINDINGS
 """""""""""""""""""""""""""""""""""""""""""""
@@ -94,8 +98,8 @@ map <leader>l :bnext<cr>
 map <leader>h :bprevious<cr>
 
 " Tabs
-map <c-t><right> :tabnext<cr>
-map <c-t><left> :tabprevious<cr>
+map <c-t>l :tabnext<cr>
+map <c-t>h :tabprevious<cr>
 map <c-t>q :tabclose<cr>
 map <c-t>n :call LaunchNewTabWithNetrw()<cr>
 
@@ -123,7 +127,7 @@ au FileType python map <buffer> F :set foldmethod=indent<cr>
 au FileType python set cindent
 au FileType python set cinkeys-=0#
 au FileType python set indentkeys-=0#
-"
+
 " Highlight docstrings as comments, not string.
 syn region pythonDocstring  start=+^\s*[uU]\?[rR]\?"""+ end=+"""+ keepend excludenl contains=pythonEscape,@Spell,pythonDoctest,pythonDocTest2,pythonSpaceError
 syn region pythonDocstring  start=+^\s*[uU]\?[rR]\?'''+ end=+'''+ keepend excludenl contains=pythonEscape,@Spell,pythonDoctest,pythonDocTest2,pythonSpaceError
@@ -161,10 +165,17 @@ Plug 'ctrlpvim/ctrlp.vim'                                                       
 Plug 'jiangmiao/auto-pairs'                                                               " Bracket Complete
 Plug 'ntpeters/vim-better-whitespace'                                                     " Trailing whitespace highlight
 Plug 'tpope/vim-commentary'
+Plug 'vim-syntastic/syntastic'                                                            " Syntax checking
+
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
 
 Plug 'sjl/gundo.vim'
 Plug 'rdnetto/YCM-Generator', { 'branch': 'stable', 'on': 'YcmGenerateConfig'}
-Plug 'Valloric/YouCompleteMe'
+Plug 'Valloric/YouCompleteMe', { 'for': ['c', 'cpp'] }
+Plug 'davidhalter/jedi-vim', { 'on': [] }   " XXX disabled
+Plug 'Shougo/deoplete.nvim', { 'do': 'UpdateRemotePlugins' }
+
 
 Plug 'sheerun/vim-polyglot'
 
@@ -182,6 +193,26 @@ let g:netrw_liststyle = 3
 " AG
 let g:ag_working_path_mode="r"
 
+
+" Syntastic
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+
+let g:syntastic_mode_map = { 'passive_filetypes': ['python'] }
+
+" UltiSnips
+let g:UltiSnipsExpandTrigger="<c-d>"
+let g:UltiSnipsJumpForwardTrigger="<c-b>"
+let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+
+" If you want :UltiSnipsEdit to split your window.
+let g:UltiSnipsEditSplit="vertical"
+
+" Deoplete
+let g:deoplete#enable_at_startup = 1
+
 """""""""""""""""""""""""""""""""""""""""""""
 " FUNCTIONS
 """""""""""""""""""""""""""""""""""""""""""""
@@ -190,15 +221,3 @@ function! LaunchNewTabWithNetrw()
   :tabnew
   :Explore
 endfunction
-
-" This is added by the install script.
-set runtimepath+=/Users/osmanmesutozcan/.dotfiles/vim
-
-
-" This is added by the install script.
-set runtimepath+=/Users/osmanmesutozcan/.dotfiles/vim
-
-
-" This is added by the install script.
-set runtimepath+=/Users/osmanmesutozcan/.dotfiles/vim
-
