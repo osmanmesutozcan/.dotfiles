@@ -175,7 +175,7 @@ Plug 'rdnetto/YCM-Generator', { 'branch': 'stable', 'on': 'YcmGenerateConfig'}
 Plug 'Valloric/YouCompleteMe', { 'for': ['c', 'cpp'] }
 Plug 'davidhalter/jedi-vim', { 'on': [] }   " XXX disabled
 Plug 'Shougo/deoplete.nvim', { 'do': 'UpdateRemotePlugins' }
-
+Plug 'zchee/deoplete-jedi'
 
 Plug 'sheerun/vim-polyglot'
 
@@ -212,6 +212,12 @@ let g:UltiSnipsEditSplit="vertical"
 
 " Deoplete
 let g:deoplete#enable_at_startup = 1
+
+autocmd FileType python nnoremap <leader>y :0,$!yapf<Cr>
+autocmd CompleteDone * pclose " To close preview window of deoplete automagically
+
+" deoplete-jedi
+inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
 
 """""""""""""""""""""""""""""""""""""""""""""
 " FUNCTIONS
