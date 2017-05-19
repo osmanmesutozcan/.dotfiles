@@ -166,6 +166,7 @@ Plug 'jiangmiao/auto-pairs'                                                     
 Plug 'ntpeters/vim-better-whitespace'                                                     " Trailing whitespace highlight
 Plug 'tpope/vim-commentary'
 Plug 'vim-syntastic/syntastic'                                                            " Syntax checking
+Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
 
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
@@ -218,6 +219,17 @@ autocmd CompleteDone * pclose " To close preview window of deoplete automagicall
 
 " deoplete-jedi
 inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
+
+" NERDTree
+" Close vim if the only buffer left is NERDTree
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+" Start NERDTree when opening a directory
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
+
+let g:NERDTreeWinPos = "right"
+map <C-n> :NERDTreeToggle<CR>
+
 
 """""""""""""""""""""""""""""""""""""""""""""
 " FUNCTIONS

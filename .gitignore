@@ -12,6 +12,7 @@
 !update.sh
 !vimrc
 !zshrc
+!bashrc
 
 vim/temp/undodir/**
 vim/plugged/**
