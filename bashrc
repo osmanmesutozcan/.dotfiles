@@ -1,11 +1,30 @@
 # General
 # --------------------------------------------------------------------------------
+# sane defaults fron ubuntu
+HISTCONTROL=ignoredups:ignorespace
+PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+MANPATH="/usr/local/opt/coreutils/libexec/gnuman:$MANPATH"
+
+export EDITOR=nvim
+
+shopt -s histappend
+shopt -s checkwinsize
+
+if [[ `uname` == 'Darwin' ]]; then
+    export LESSOPEN="| /usr/local/bin/src-hilite-lesspipe.sh %s"
+else
+    export LESSOPEN="| /usr/bin/src-hilite-lesspipe.sh %s"
+fi
+export LESS=' -R '
+
+test -e ~/.dircolors && \
+   eval `dircolors -b ~/.dircolors`
+
 branch() {
     git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
 }
 export PS1="\[$(tput bold)\]\[$(tput setaf 4)\][\[$(tput setaf 5)\]\j\[$(tput setaf 4)\]\[$(tput setaf 5)\]\$(branch)\[$(tput setaf 2)\] \W\[$(tput setaf 4)\]]\\$ \[$(tput sgr0)\]"
 
-export EDITOR=nvim
 
 # Aliases
 # --------------------------------------------------------------------------------
@@ -16,12 +35,19 @@ alias ..='cd ../'
 alias ...='cd ../../'
 alias ....='cd ../../../'
 
-mkcd () { mkdir -p $1 && cd $1; }
-trash () { command mv "$@" ~/.Trash; }
+alias ls="ls --color=always"
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
+alias grep="grep --color=always"
+alias egrep="egrep --color=always"
 
 # recursive directory list
 alias lr='ls -R | grep ":$" | sed -e '\''s/:$//'\'' -e '\''s/[^-][^\/]*\//--/g'\'' -e '\''s/^/   /'\'' -e '\''s/-/|/'\'' | less'
 
+mkcd () { mkdir -p $1 && cd $1; }
+trash () { command mv "$@" ~/.Trash; }
 extract () {
     if [ -f $1 ] ; then
         case $1 in

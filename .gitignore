@@ -13,6 +13,7 @@
 !vimrc
 !zshrc
 !bashrc
+!bash_profile
 
 vim/temp/undodir/**
 vim/plugged/**

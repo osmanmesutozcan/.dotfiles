@@ -94,6 +94,8 @@ brew install tree
 brew install vbindiff
 brew install webkit2png
 brew install zopfli
+brew install bash-completition
+brew tab homebrew/completions
 
 # Remove outdated versions from the cellar.
 brew cleanup
