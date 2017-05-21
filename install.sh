@@ -3,23 +3,34 @@
 # Get the previleges.
 sudo -v
 
+# Variables
+PROMPT=">> "
+
 # Update existing sudo time stamp till the script finishes.
 while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
-echo "" >> $(pwd)/vimrc
-echo "\" This is added by the install script." >> $(pwd)/vimrc
-echo "set runtimepath+=$(pwd)/vim" >> $(pwd)/vimrc
-echo "" >> $(pwd)/vimrc
+echo "This will override your existing dotfiles do you want to continue?"
+read -p $PROMPT answer
+if [[ $answer == "y" || $answer == "Y" || $answer == "yes" || $answer == "Yes" ]]; then
+    echo "linking dotfiles"
+    ./link.sh
+fi
 
-mkdir -p $(pwd)/vim/temp/undodir
+echo brew -v > /dev/null
+if [[ $? -eq 0 && `uname` -eq 'Darwin' ]]; then
+    echo "Changing macbook settings"
+    ./macos
 
-curl -LSso $(pwd)/vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
+    echo -n "Brew is not installed do you want to install it?"
+    read -p $PROMPT answer
+    if [[ $answer == "y" || $answer == "Y" || $answer == "yes" || $answer == "Yes" ]]; then
+        /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    fi
 
-cp -frv $(pwd)/vimrc ~/.vimrc
-ln -frv $(pwd)/zshrc ~/.zshrc
+    echo -n "Do you want to install all the brew applications from the brew.sh file?"
+    read -p $PROMPT answer
+    if [[ $answer == "y" || $answer == "Y" || $answer == "yes" || $answer == "Yes" ]]; then
+        echo install brew.sh
+    fi
+fi
 
-$(pwd)/macos
-$(pwd)/brew.sh
-
-echo "Basic configs are added please install brew"
-echo "and then run brew.sh script"

@@ -15,5 +15,7 @@
 !bashrc
 !bash_profile
 
+!Makefile
+
 vim/temp/undodir/**
 vim/plugged/**
