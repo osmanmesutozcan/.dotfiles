@@ -20,9 +20,6 @@ export LESS=' -R '
 test -e ~/.dircolors && \
    eval `dircolors -b ~/.dircolors`
 
-branch() {
-=======
-
 # ~/.bashrc: executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
@@ -75,7 +72,6 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 branch_parse() {
->>>>>>> 984106c144e133344c9d8bfda71af9f055f65401
     git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
 }
 if [ "$color_prompt" = yes ]; then
