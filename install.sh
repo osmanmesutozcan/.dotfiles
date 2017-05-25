@@ -33,4 +33,3 @@ if [[ $? -eq 0 && `uname` -eq 'Darwin' ]]; then
         echo install brew.sh
     fi
 fi
-

@@ -194,7 +194,6 @@ let g:netrw_liststyle = 3
 " AG
 let g:ag_working_path_mode="r"
 
-
 " Syntastic
 let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 1
@@ -230,6 +229,8 @@ autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in
 let g:NERDTreeWinPos = "right"
 map <C-n> :NERDTreeToggle<CR>
 
+" Cursor Shape
+let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
 
 """""""""""""""""""""""""""""""""""""""""""""
 " FUNCTIONS
@@ -239,3 +240,4 @@ function! LaunchNewTabWithNetrw()
   :tabnew
   :Explore
 endfunction
+
