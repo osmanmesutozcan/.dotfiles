@@ -69,3 +69,7 @@ extract () {
      fi
 }
 
+# Source
+# --------------------------------------------------------------------------------
+test -e ~/.dotfiles/aliases.sh && \
+   source ~/.dotfiles/aliases.sh
