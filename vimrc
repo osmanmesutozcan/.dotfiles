@@ -94,8 +94,8 @@ map <leader>l :bnext<cr>
 map <leader>h :bprevious<cr>
 
 " Tabs
-map <c-t><right> :tabnext<cr>
-map <c-t><left> :tabprevious<cr>
+map <c-t>l :tabnext<cr>
+map <c-t>h :tabprevious<cr>
 map <c-t>q :tabclose<cr>
 map <c-t>n :call LaunchNewTabWithNetrw()<cr>
 
@@ -182,6 +182,9 @@ let g:netrw_liststyle = 3
 " AG
 let g:ag_working_path_mode="r"
 
+" Cursor Shape
+let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
+
 """""""""""""""""""""""""""""""""""""""""""""
 " FUNCTIONS
 """""""""""""""""""""""""""""""""""""""""""""
@@ -190,15 +193,4 @@ function! LaunchNewTabWithNetrw()
   :tabnew
   :Explore
 endfunction
-
-" This is added by the install script.
-set runtimepath+=/Users/osmanmesutozcan/.dotfiles/vim
-
-
-" This is added by the install script.
-set runtimepath+=/Users/osmanmesutozcan/.dotfiles/vim
-
-
-" This is added by the install script.
-set runtimepath+=/Users/osmanmesutozcan/.dotfiles/vim
 
