@@ -73,7 +73,22 @@ colorscheme despacio
 hi Normal guibg=NONE ctermbg=NONE
 
 " Status bar
-set laststatus=2                             " always show statusbar
+set laststatus=2                                " always show statusbar
+set statusline=%t                               "tail of the filename
+set statusline+=[%{strlen(&fenc)?&fenc:'none'}, "file encoding
+set statusline+=\ %{&ff}]                       "file format
+set statusline+=\ %h                            "help file flag
+set statusline+=\ %r                            "read only flag
+set statusline+=\ %y                            "filetype
+set statusline+=\ %m                            "modified flag
+
+set statusline+=\ %=                            "left/right separator
+set statusline+=\ %{strftime('%H:%m')}
+
+set statusline+=\ %=                            "left/right separator
+set statusline+=\ %c,                           "cursor column
+set statusline+=%l/%L                           "cursor line/total lines
+set statusline+=\ %P                            "percent through file
 
 " Fix humans.
 :command WQ wq
@@ -179,6 +194,7 @@ Plug 'Shougo/deoplete.nvim', { 'do': 'UpdateRemotePlugins' }
 Plug 'zchee/deoplete-jedi'
 
 Plug 'sheerun/vim-polyglot'
+Plug 'vim-scripts/TaskList.vim'
 
 call plug#end()
 
