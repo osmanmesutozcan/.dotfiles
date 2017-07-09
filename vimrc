@@ -49,6 +49,9 @@ set undofile
 let mapleader=","
 let g:mapleader=","
 
+let maplocalleader = ",,"
+let g:maplocalleader = ",,"
+
 " Show current line.
 set ruler
 
@@ -118,7 +121,7 @@ map <leader>g :Ag
 " FILETYPES
 """""""""""""""""""""""""""""""""""""""""""""
 
-" Python
+""""""""""" PYTHON
 let python_highlight_all = 1
 au FileType python syn keyword pythonDecorator True None False self
 au BufNewFile,BufRead *.jinja set syntax=htmljinja
@@ -134,7 +137,8 @@ syn region pythonDocstring  start=+^\s*[uU]\?[rR]\?'''+ end=+'''+ keepend exclud
 
 hi def link pythonDocstring pythonComment
 
-" Javascript
+
+""""""""""" JAVASCRIPT
 au FileType javascript call JavaScriptFold()
 au FileType javascript setl fen
 au FileType javascript setl nocindent
@@ -162,23 +166,26 @@ call plug#begin('~/.dotfiles/vim/plugged')
 Plug 'rking/ag.vim'                                                                       " Silver Searcher
 Plug 'ctrlpvim/ctrlp.vim'                                                                 " CtrlP
 
+Plug 'freitass/todo.txt-vim'
 Plug 'jiangmiao/auto-pairs'                                                               " Bracket Complete
 Plug 'ntpeters/vim-better-whitespace'                                                     " Trailing whitespace highlight
 Plug 'tpope/vim-commentary'
-Plug 'vim-syntastic/syntastic'                                                            " Syntax checking
 Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
 
+Plug 'sevko/vim-nand2tetris-syntax'
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
+Plug 'sheerun/vim-polyglot'
+Plug 'vim-syntastic/syntastic'                                                            " Syntax checking
 
 Plug 'sjl/gundo.vim'
-Plug 'rdnetto/YCM-Generator', { 'branch': 'stable', 'on': 'YcmGenerateConfig'}
-Plug 'Valloric/YouCompleteMe', { 'for': ['c', 'cpp'] }
-Plug 'davidhalter/jedi-vim', { 'on': [] }   " XXX disabled
+
 Plug 'Shougo/deoplete.nvim', { 'do': 'UpdateRemotePlugins' }
+Plug 'zchee/deoplete-clang', { 'on': [] }
 Plug 'zchee/deoplete-jedi'
 
-Plug 'sheerun/vim-polyglot'
+Plug 'Shougo/neoinclude.vim', { 'for': ['c', 'cpp'] }
+
 
 call plug#end()
 
@@ -193,15 +200,6 @@ let g:netrw_liststyle = 3
 
 " AG
 let g:ag_working_path_mode="r"
-
-
-" Syntastic
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
-
-let g:syntastic_mode_map = { 'passive_filetypes': ['python'] }
 
 " UltiSnips
 let g:UltiSnipsExpandTrigger="<c-d>"
@@ -229,6 +227,7 @@ autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in
 
 let g:NERDTreeWinPos = "right"
 map <C-n> :NERDTreeToggle<CR>
+
 
 
 """""""""""""""""""""""""""""""""""""""""""""

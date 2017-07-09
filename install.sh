@@ -32,5 +32,11 @@ if [[ $? -eq 0 && `uname` -eq 'Darwin' ]]; then
     if [[ $answer == "y" || $answer == "Y" || $answer == "yes" || $answer == "Yes" ]]; then
         echo install brew.sh
     fi
+else
+    echo -n "Do you want to install all the apt applications from the apt.sh file?"
+    read -p $PROMPT answer
+    if [[ $answer == "y" || $answer == "Y" || $answer == "yes" || $answer == "Yes" ]]; then
+        ./apt.sh
+    fi
 fi
 

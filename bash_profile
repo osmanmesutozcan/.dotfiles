@@ -21,3 +21,5 @@ fi;
 for option in autocd globstar; do
 	shopt -s "$option" 2> /dev/null;
 done;
+
+test -r /sw/bin/init.sh && . /sw/bin/init.sh
