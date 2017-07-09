@@ -1,0 +1,20 @@
+# Macos related setting are here.
+export LESSOPEN="| /usr/local/bin/src-hilite-lesspipe.sh %s"
+export LESS=' -R '
+
+# lib exports
+export OPENNI2_INCLUDE=/usr/local/include/ni2
+export OPENNI2_REDIST=/usr/local/lib/ni2
+
+####################### FUNCTIONS ##############################################
+function diff {
+    colordiff -u "$@" | less -RF
+}
+
+
+####################### CONFIGS ################################################
+PATH="/Users/osmanmesutozcan/perl5/bin${PATH:+:${PATH}}"; export PATH;
+PERL5LIB="/Users/osmanmesutozcan/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+PERL_LOCAL_LIB_ROOT="/Users/osmanmesutozcan/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+PERL_MB_OPT="--install_base \"/Users/osmanmesutozcan/perl5\""; export PERL_MB_OPT;
+PERL_MM_OPT="INSTALL_BASE=/Users/osmanmesutozcan/perl5"; export PERL_MM_OPT;
