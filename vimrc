@@ -76,7 +76,19 @@ colorscheme despacio
 hi Normal guibg=NONE ctermbg=NONE
 
 " Status bar
-set laststatus=2                             " always show statusbar
+set laststatus=2                                " always show statusbar
+set statusline=%t                               "tail of the filename
+set statusline+=[%{strlen(&fenc)?&fenc:'none'}, "file encoding
+set statusline+=\ %{&ff}]                       "file format
+set statusline+=\ %h                            "help file flag
+set statusline+=\ %r                            "read only flag
+set statusline+=\ %y                            "filetype
+set statusline+=\ %m                            "modified flag
+
+set statusline+=\ %=                            "left/right separator
+set statusline+=\ %c,                           "cursor column
+set statusline+=%l/%L                           "cursor line/total lines
+set statusline+=\ %P                            "percent through file
 
 " Fix humans.
 :command WQ wq
@@ -166,6 +178,7 @@ call plug#begin('~/.dotfiles/vim/plugged')
 Plug 'rking/ag.vim'                                                                       " Silver Searcher
 Plug 'ctrlpvim/ctrlp.vim'                                                                 " CtrlP
 
+Plug 'vim-scripts/TaskList.vim'
 Plug 'freitass/todo.txt-vim'
 Plug 'jiangmiao/auto-pairs'                                                               " Bracket Complete
 Plug 'ntpeters/vim-better-whitespace'                                                     " Trailing whitespace highlight
@@ -185,7 +198,6 @@ Plug 'zchee/deoplete-clang', { 'on': [] }
 Plug 'zchee/deoplete-jedi'
 
 Plug 'Shougo/neoinclude.vim', { 'for': ['c', 'cpp'] }
-
 
 call plug#end()
 

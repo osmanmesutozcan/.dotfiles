@@ -87,6 +87,10 @@ extract () {
 
 # Source
 # --------------------------------------------------------------------------------
+test -e ~/.dotfiles/aliases.sh && \
+   source ~/.dotfiles/aliases.sh
+
+# nvm
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
@@ -96,3 +100,8 @@ if [[ `uname` == 'Darwin' ]]; then
     test -e ~/.dotfiles/bash_macos.sh && \
        source ~/.dotfiles/bash_macos.sh
 fi
+
+# pyenv
+export PATH="~/.pyenv/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
