@@ -110,10 +110,32 @@ extract () {
      fi
 }
 
+docker_rm_all () {
+    for c in `docker ps -a | awk '{ print $1 }'`; do
+        if [[ "$c" == "CONTAINER" ]];then
+            echo "Removing all in 2 seconds. Last chance to cancel.";
+            sleep 2;
+        else
+            docker rm -f $c;
+        fi
+    done
+}
+
+docker_kill_all () {
+    for c in `docker ps | awk '{ print $1 }'`; do
+        if [[ "$c" == "CONTAINER" ]];then
+            echo "Removing all in 2 seconds. Last chance to cancel.";
+            sleep 2;
+        else
+            docker kill $c;
+        fi
+    done
+}
+
 # Source
 # --------------------------------------------------------------------------------
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
+if [ -f ~/.dotfiles/bash_aliases ]; then
+    . ~/.dotfiles/bash_aliases
 fi
 
 # nvm

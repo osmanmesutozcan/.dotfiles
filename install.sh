@@ -14,6 +14,9 @@ read -p $PROMPT answer
 if [[ $answer == "y" || $answer == "Y" || $answer == "yes" || $answer == "Yes" ]]; then
     echo "linking dotfiles"
     ./link.sh
+
+    echo "installing docker"
+    curl -sSL https://get.docker.com/ | sh
 fi
 
 echo brew -v > /dev/null
