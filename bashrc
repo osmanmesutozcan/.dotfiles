@@ -144,10 +144,11 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # Platform specific configs.
-if [[ `uname` == 'Darwin' ]]; then
+UNAME=`uname`
+if [[ "$UNAME" == "Darwin" ]]; then
     test -e ~/.dotfiles/bash_macos && \
        source ~/.dotfiles/bash_macos
-elif [[ `uname` == 'Linux' ]]; then
+elif [[ "$UNAME" == "Linux" ]]; then
     test -e ~/.dotfiles/bash_linux && \
        source ~/.dotfiles/bash_linux
 fi
