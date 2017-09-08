@@ -6,9 +6,8 @@ test -f ~/.bashrc && source ~/.bashrc
 test -e "${HOME}/.iterm2_shell_integration.bash" && source "${HOME}/.iterm2_shell_integration.bash"
 
 #load compl.
-if which brew &> /dev/null && [ -f "$(brew --prefix)/etc/bash_completion" ]; then
-	source "$(brew --prefix)/etc/bash_completion";
-elif [ -f /etc/bash_completion ]; then
+source "$(brew --prefix)/etc/bash_completion";
+if [ -f /etc/bash_completion ]; then
 	source /etc/bash_completion;
 fi;
 

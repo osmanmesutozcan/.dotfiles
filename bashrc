@@ -58,6 +58,9 @@ export PATH=$PATH:$GOPATH/bin
 
 # Aliases
 # --------------------------------------------------------------------------------
+alias emd="emacs -nw --daemon"
+alias emc="emacsclient -nw -c"
+
 alias vim=nvim
 alias vi=vim
 
@@ -132,6 +135,10 @@ docker_kill_all () {
     done
 }
 
+docker_bash () {
+    docker exec -ti $1 bash;
+}
+
 # Source
 # --------------------------------------------------------------------------------
 if [ -f ~/.dotfiles/bash_aliases ]; then
@@ -152,3 +159,8 @@ elif [[ "$UNAME" == "Linux" ]]; then
     test -e ~/.dotfiles/bash_linux && \
        source ~/.dotfiles/bash_linux
 fi
+
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"

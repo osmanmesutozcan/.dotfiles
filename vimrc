@@ -179,6 +179,7 @@ Plug 'rking/ag.vim'                                                             
 Plug 'ctrlpvim/ctrlp.vim'                                                                 " CtrlP
 
 Plug 'vim-scripts/TaskList.vim'
+Plug 'godlygeek/tabular'
 Plug 'freitass/todo.txt-vim'
 Plug 'jiangmiao/auto-pairs'                                                               " Bracket Complete
 Plug 'ntpeters/vim-better-whitespace'                                                     " Trailing whitespace highlight
@@ -195,6 +196,7 @@ Plug 'sjl/gundo.vim'
 
 Plug 'Shougo/deoplete.nvim', { 'do': 'UpdateRemotePlugins' }
 Plug 'zchee/deoplete-clang', { 'on': [] }
+Plug 'eagletmt/neco-ghc'
 Plug 'zchee/deoplete-jedi'
 
 Plug 'Shougo/neoinclude.vim', { 'for': ['c', 'cpp'] }
