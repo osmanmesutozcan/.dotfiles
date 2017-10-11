@@ -3,6 +3,7 @@
 # General
 # --------------------------------------------------------------------------------
 # sane defaults fron ubuntu
+TERM=xterm-256color
 HISTCONTROL=ignoredups:ignorespace
 HISTSIZE=1000
 HISTFILESIZE=2000
@@ -59,7 +60,7 @@ export PATH=$PATH:$GOPATH/bin
 # Aliases
 # --------------------------------------------------------------------------------
 alias emd="emacs -nw --daemon"
-alias emc="emacsclient -nw -c"
+alias em="emacsclient -nw -c"
 
 alias vim=nvim
 alias vi=vim
@@ -164,3 +165,7 @@ export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
+
+# Temp
+# --------------------------------------------------------------------------------
+alias awscli="/Users/osmanmesutozcan/.pyenv/versions/productreview/bin"

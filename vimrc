@@ -71,12 +71,12 @@ syntax on
 filetype plugin indent on
 
 " Color Scheme
-se t_Co=256
-colorscheme despacio
+let &t_Co=256
 hi Normal guibg=NONE ctermbg=NONE
+colorscheme zellner
 
 " Status bar
-set laststatus=2                                " always show statusbar
+set laststatus=0                                " always show statusbar
 set statusline=%t                               "tail of the filename
 set statusline+=[%{strlen(&fenc)?&fenc:'none'}, "file encoding
 set statusline+=\ %{&ff}]                       "file format
@@ -178,24 +178,24 @@ call plug#begin('~/.dotfiles/vim/plugged')
 Plug 'rking/ag.vim'                                                                       " Silver Searcher
 Plug 'ctrlpvim/ctrlp.vim'                                                                 " CtrlP
 
+Plug 'tpope/vim-fugitive'
 Plug 'vim-scripts/TaskList.vim'
-Plug 'godlygeek/tabular'
-Plug 'freitass/todo.txt-vim'
 Plug 'jiangmiao/auto-pairs'                                                               " Bracket Complete
 Plug 'ntpeters/vim-better-whitespace'                                                     " Trailing whitespace highlight
 Plug 'tpope/vim-commentary'
 Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
+Plug 'lambdalisue/vim-pyenv', {'for': ['python']}
 
 Plug 'sevko/vim-nand2tetris-syntax'
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
 Plug 'sheerun/vim-polyglot'
 Plug 'vim-syntastic/syntastic'                                                            " Syntax checking
-
 Plug 'sjl/gundo.vim'
+Plug 'shime/vim-livedown'
 
 Plug 'Shougo/deoplete.nvim', { 'do': 'UpdateRemotePlugins' }
-Plug 'zchee/deoplete-clang', { 'on': [] }
+Plug 'zchee/deoplete-clang', { 'for': ['c', 'cpp'] }
 Plug 'eagletmt/neco-ghc'
 Plug 'zchee/deoplete-jedi'
 
@@ -225,9 +225,12 @@ let g:UltiSnipsEditSplit="vertical"
 
 " Deoplete
 let g:deoplete#enable_at_startup = 1
-
 autocmd FileType python nnoremap <leader>y :0,$!yapf<Cr>
-autocmd CompleteDone * pclose " To close preview window of deoplete automagically
+autocmd InsertLeave * if pumvisible() == 0 | pclose | endif "close preview window
+
+let g:deoplete#enable_at_startup = 1
+let g:deoplete#sources#clang#libclang_path = '/Users/osmanmesutozcan/cling/lib/libclang.dylib'
+let g:deoplete#sources#clang#clang_header = '/Users/osmanmesutozcan/cling/include/'
 
 " deoplete-jedi
 inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"

@@ -3,7 +3,6 @@ export PATH=/usr/local/bin:$PATH
 
 # Load .bashrc if it exists
 test -f ~/.bashrc && source ~/.bashrc
-test -e "${HOME}/.iterm2_shell_integration.bash" && source "${HOME}/.iterm2_shell_integration.bash"
 
 #load compl.
 source "$(brew --prefix)/etc/bash_completion";
