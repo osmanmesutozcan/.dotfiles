@@ -17,9 +17,6 @@ set encoding=utf8
 " Set history to remember.
 set history=1000
 
-" Autoload when file changes.
-set autoread
-
 " Backspace behavior fix.
 set backspace=2
 
@@ -37,6 +34,7 @@ set smartcase
 " Link break
 set lbr
 set tw=120
+set nowrap
 
 " Backups and undo
 set nobackup
@@ -44,6 +42,9 @@ set nowb
 set noswapfile
 set undodir=~/.dotfiles/vim/temp/undodir
 set undofile
+
+" always yank to clipboard
+set clipboard=unnamedplus
 
 " Map leader key.
 let mapleader=","
@@ -63,20 +64,20 @@ set hlsearch
 set incsearch
 set ignorecase
 
-" Seperator
-set fillchars=""
-
 " Enable syntax highlighting.
 syntax on
 filetype plugin indent on
 
+" display indentation guides
+set list listchars=tab:·\ ,trail:·,extends:»,precedes:«,nbsp:×
+
 " Color Scheme
 let &t_Co=256
 hi Normal guibg=NONE ctermbg=NONE
-colorscheme zellner
+" colorscheme despacio
 
 " Status bar
-set laststatus=0                                " always show statusbar
+set laststatus=2                                " always show statusbar
 set statusline=%t                               "tail of the filename
 set statusline+=[%{strlen(&fenc)?&fenc:'none'}, "file encoding
 set statusline+=\ %{&ff}]                       "file format
@@ -89,6 +90,13 @@ set statusline+=\ %=                            "left/right separator
 set statusline+=\ %c,                           "cursor column
 set statusline+=%l/%L                           "cursor line/total lines
 set statusline+=\ %P                            "percent through file
+" highlight statusline cterm=reverse
+
+
+" Seperator
+set fillchars+=vert:│ 
+set fillchars+=stl:─
+set fillchars+=stlnc:─
 
 " Fix humans.
 :command WQ wq
@@ -97,8 +105,8 @@ set statusline+=\ %P                            "percent through file
 :command Q q
 
 " NeoVim
-let g:python3_host_prog = '/usr/local/bin/python3'
-let g:python_host_prog = '/usr/local/bin/python'
+let g:python3_host_prog = '/home/osman/.pyenv/versions/3.6.5/bin/python'
+let g:python_host_prog = '/home/osman/.pyenv/versions/2.7.14/bin/python'
 
 """""""""""""""""""""""""""""""""""""""""""""
 " KEYBINDINGS
@@ -167,6 +175,16 @@ function! JavaScriptFold()
 endfunction
 
 
+""""""""""" GOLANG
+au FileType go set noexpandtab
+
+
+"""""""""""
+au BufNewFile,BufRead *.sls set syntax=yaml
+au BufNewFile,BufRead Dockerfile.* set syntax=dockerfile
+
+
+
 """""""""""""""""""""""""""""""""""""""""""""
 " PLUGINS
 """""""""""""""""""""""""""""""""""""""""""""
@@ -175,33 +193,32 @@ endfunction
 " Vim-plug
 call plug#begin('~/.dotfiles/vim/plugged')
 
-Plug 'rking/ag.vim'                                                                       " Silver Searcher
-Plug 'ctrlpvim/ctrlp.vim'                                                                 " CtrlP
+Plug 'rking/ag.vim'
+Plug 'ctrlpvim/ctrlp.vim'
 
-Plug 'tpope/vim-fugitive'
-Plug 'vim-scripts/TaskList.vim'
-Plug 'jiangmiao/auto-pairs'                                                               " Bracket Complete
-Plug 'ntpeters/vim-better-whitespace'                                                     " Trailing whitespace highlight
+Plug 'jiangmiao/auto-pairs'
+Plug 'ntpeters/vim-better-whitespace'
 Plug 'tpope/vim-commentary'
 Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
 Plug 'lambdalisue/vim-pyenv', {'for': ['python']}
 
-Plug 'sevko/vim-nand2tetris-syntax'
-Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
 Plug 'sheerun/vim-polyglot'
-Plug 'vim-syntastic/syntastic'                                                            " Syntax checking
+Plug 'w0rp/ale'
 Plug 'sjl/gundo.vim'
-Plug 'shime/vim-livedown'
 
+Plug 'SirVer/ultisnips'
 Plug 'Shougo/deoplete.nvim', { 'do': 'UpdateRemotePlugins' }
-Plug 'zchee/deoplete-clang', { 'for': ['c', 'cpp'] }
-Plug 'eagletmt/neco-ghc'
 Plug 'zchee/deoplete-jedi'
-
+Plug 'carlitux/deoplete-ternjs', { 'do': 'npm install -g tern' }
+Plug 'mhartington/nvim-typescript'
+Plug 'zchee/deoplete-clang', { 'for': ['c', 'cpp'] }
 Plug 'Shougo/neoinclude.vim', { 'for': ['c', 'cpp'] }
+Plug 'zchee/deoplete-go', { 'do': 'make' }
+Plug 'fatih/vim-go'
 
 call plug#end()
+
 
 " Ctrlp
 let g:ctrlp_working_path_mode = 0
@@ -223,14 +240,30 @@ let g:UltiSnipsJumpBackwardTrigger="<c-z>"
 " If you want :UltiSnipsEdit to split your window.
 let g:UltiSnipsEditSplit="vertical"
 
+" ALE
+let g:ale_sign_column_always = 1
+let g:ale_fixers = {
+\   'javascript': ['eslint'],
+\   'python': ['yapf'],
+\}
+
 " Deoplete
 let g:deoplete#enable_at_startup = 1
 autocmd FileType python nnoremap <leader>y :0,$!yapf<Cr>
 autocmd InsertLeave * if pumvisible() == 0 | pclose | endif "close preview window
 
 let g:deoplete#enable_at_startup = 1
-let g:deoplete#sources#clang#libclang_path = '/Users/osmanmesutozcan/cling/lib/libclang.dylib'
-let g:deoplete#sources#clang#clang_header = '/Users/osmanmesutozcan/cling/include/'
+let g:deoplete#sources#go#gocode_binary = '/home/osmanmesutozcan/dev/go/bin/gocode'
+
+let g:deoplete#sources#clang#libclang_path = '/usr/lib/llvm-4.0/lib/libclang.so'
+let g:deoplete#sources#clang#clang_header = '/usr/lib/clang/4.0/include'
+let g:deoplete#sources#clang#std = { 'c': 'c11', 'cpp': 'c++1z' }
+let g:deoplete#sources#clang#flags = ['-std=c11']
+
+let g:deoplete#sources#ternjs#depths = 1
+let g:deoplete#sources#ternjs#filter = 0
+let g:deoplete#sources#ternjs#case_insensitive = 1
+let g:tern#arguments = ['--persistent']
 
 " deoplete-jedi
 inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
