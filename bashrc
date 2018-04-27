@@ -53,9 +53,9 @@ export PS1="\[$(tput bold)\]\[$(tput setaf 4)\][\[$(tput setaf 5)\]\j\[$(tput se
 export EDITOR=nvim
 
 # Go
-export PATH=$PATH:/usr/local/go/bin
-export GOPATH=$(go env GOPATH)
-export PATH=$PATH:$GOPATH/bin
+# export PATH=$PATH:/usr/local/go/bin
+# export GOPATH=$(go env GOPATH)
+# export PATH=$PATH:$GOPATH/bin
 
 # Aliases
 # --------------------------------------------------------------------------------
@@ -146,20 +146,19 @@ if [ -f ~/.dotfiles/bash_aliases ]; then
     . ~/.dotfiles/bash_aliases
 fi
 
+# enable programmable completion features
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+fi
+
 # nvm
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-# Platform specific configs.
-UNAME=`uname`
-if [[ "$UNAME" == "Darwin" ]]; then
-    test -e ~/.dotfiles/bash_macos && \
-       source ~/.dotfiles/bash_macos
-elif [[ "$UNAME" == "Linux" ]]; then
-    test -e ~/.dotfiles/bash_linux && \
-       source ~/.dotfiles/bash_linux
-fi
 
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
