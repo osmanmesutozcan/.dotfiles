@@ -59,15 +59,8 @@ export EDITOR=nvim
 
 # Aliases
 # --------------------------------------------------------------------------------
-alias emd="emacs -nw --daemon"
-alias em="emacsclient -nw -c"
-
 alias vim=nvim
 alias vi=vim
-
-# Fixing myself.
-alias :q="clear"
-alias :Q="clear"
 
 alias ..="cd ../"
 alias ...="cd ../../"
@@ -165,7 +158,6 @@ export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
 
-# Temp
-# --------------------------------------------------------------------------------
-alias awscli="/Users/osmanmesutozcan/.pyenv/versions/productreview/bin"
+export PATH="~/.dotfiles/scripts:$PATH"
+
 echo -ne "\e]12;#00ff00\a"

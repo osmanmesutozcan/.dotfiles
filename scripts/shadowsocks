@@ -1,0 +1,496 @@
+#!/usr/bin/env python3
+
+"""
+WORKING:
+- runs shadowsocks and http proxy clients
+- redirects all traffic to ss-redir (port 1080) using iptables
+- exposes local socks5 (port 1081) and http server (port 8118)
+
+WIP:
+- tor layer is still work in progress
+
+NOTES:
+- setup only works on ubuntu 17.10! You should be able to set it up
+  on any distro by following the steps.
+
+- script is tested on:
+    * fedora and 26, 27
+    * ubuntu 16.10 17.10
+
+- script will remove all rules from nat table on your host.
+      you should should back up your rules before
+      using this script.
+
+Example .shadowsocks config ( should be json ):
+
+{
+    "outbound_interface": "wlp2s0",
+    "shadowsocks_hosts": [
+        "hk2ss.whatever.net",
+        "sg2ss.whatever.net"
+    ],
+    "shadowsocks_port": 666,
+    "shadowsocks_method": "chacha20",
+    "shadowsocks_password": "some_pass"
+}
+"""
+
+import os
+import sys
+import json
+import urllib
+import socket
+import subprocess
+from urllib import request
+from urllib.error import URLError
+from argparse import ArgumentParser
+
+
+config_f = os.path.join(os.path.expanduser('~'), '.shadowsocks')
+if not os.path.exists(config_f):
+    print('Cannot find .shadowsocks file!')
+    sys.exit(1)
+
+CONFIG = json.loads(open(config_f).read())
+
+DEBUG = True
+DRY_RUN = True
+USE_TOR = False
+INET_ADDR = None
+OUT_IF = CONFIG['outbound_interface']
+
+
+class Log:
+    _BOLD = '\033[1m'
+    _GREEN = '\033[92m'
+    _YELLOW = '\033[93m'
+    _RED = '\033[91m'
+    _ENDC = '\033[0m'
+
+    @classmethod
+    def info(cls, msg, pref=''):
+        print('%s%s%s %s' \
+            % (pref, cls._BOLD, msg, cls._ENDC))
+
+    @classmethod
+    def warning(cls, msg, pref=' '):
+        print('%s[%s!%s] %s' \
+            % (pref, cls._YELLOW, cls._ENDC,  msg))
+
+    @classmethod
+    def ok(cls, msg, pref=' '):
+        print('%s[%s✓%s] %s' \
+            % (pref, cls._GREEN, cls._ENDC, msg))
+
+    @classmethod
+    def error(cls, msg, pref=' '):
+        print('%s[%sX%s] %s' \
+            % (pref, cls._RED, cls._ENDC, msg))
+
+    @classmethod
+    def debug(cls, mgs):
+        if DEBUG: print(mgs)
+
+
+class CommandFailed(Exception):
+    def __init__(self, msg):
+        super().__init__()
+        self.msg = msg
+
+
+def execute(command, no_fail=False):
+    Log.debug('executing command: %s' % command)
+
+    if not DRY_RUN:
+        if os.system(command) != 0 and not no_fail:
+            raise CommandFailed(command)
+
+
+def get_ip_list(host):
+    '''Returns a list of IPs for a host
+    '''
+    ip_list = []
+    for info in socket.getaddrinfo(host, 0, 0, 0, 0):
+        ip_list.append(info[-1][0])
+
+    # reverse to resolution order
+    return list(set(ip_list))[::-1]
+
+
+class Privoxy:
+    @staticmethod
+    def start():
+        execute('sudo service privoxy start')
+        Log.ok('privoxy is started on port 8118')
+
+    @staticmethod
+    def stop():
+        execute('sudo service privoxy stop')
+        Log.ok('privoxy is stopped')
+
+
+class Shadowsocks:
+    _PORT = CONFIG['shadowsocks_port']
+    _METHOD = CONFIG['shadowsocks_method']
+
+    _PASS = CONFIG['shadowsocks_password']
+    _LISTEN_PORT = 1080
+    _LISTEN_PORT_ALT = 1081
+
+    _HOSTS_LIST = CONFIG['shadowsocks_hosts']
+
+    @classmethod
+    def start_redir(cls, ip, port=80):
+        redir_args = "nohup ss-redir -s %s -p %d \
+            -m %s -k %s \
+            -u -l %d -v >> /var/log/ss-redir.log 2>&1 &\
+            " % (ip, cls._PORT, cls._METHOD, cls._PASS, cls._LISTEN_PORT)
+
+        execute(redir_args)
+        Log.ok('ss-redir started on port %d' % cls._LISTEN_PORT, pref=' ')
+
+    @classmethod
+    def start_local(cls, ip, port=80):
+        local_args = "nohup ss-local -s %s -p %d \
+            -m %s -k %s \
+            -u -l %d -v >> /var/log/ss-local.log 2>&1 &\
+            " % (ip, cls._PORT, cls._METHOD, cls._PASS, cls._LISTEN_PORT_ALT)
+
+        execute(local_args)
+        Log.ok('ss-local started on port %d' % cls._LISTEN_PORT_ALT, pref=' ')
+
+    @staticmethod
+    def stop():
+        execute('pkill ss-redir')
+        execute('pkill ss-local')
+        Log.ok('shadowsocks proccesses are stopped')
+
+
+class Tor:
+    # _UID = int(subprocess.getoutput('id -ur debian-tor'))
+    _TRANS_PORT = 9040
+    _SOCKS_PORT = 9050
+    _DNS_PORT = 53
+    _VIRT_ADDR = "10.192.0.0/10"
+
+    @classmethod
+    def setup(cls):
+        Log.info('setting up tor')
+
+        conf_f = '/tmp/torrc'
+        config = '\n'.join([
+            'log notice file /var/log/tor/notices.log',
+
+            'VirtualAddrNetwork %s' % cls._VIRT_ADDR,
+            'AutomapHostsSuffixes .onion,.exit',
+            'AutomapHostsOnResolve 1',
+
+            'TransPort %s' % cls._TRANS_PORT,
+            'DNSPort %s' % cls._DNS_PORT,
+
+            'Socks5Port %d' % cls._SOCKS_PORT,
+            'Socks5Proxy 127.0.0.1:%d' \
+                % Shadowsocks._LISTEN_PORT_ALT
+        ])
+
+        config += '\n'
+        Log.debug(config)
+
+        with open(conf_f, 'w') as conf_file:
+            conf_file.write(config)
+
+        execute('sudo mv %s /etc/tor/torrc' % conf_f)
+        execute('sudo service tor restart')
+        Log.ok('tor is configured')
+
+    @staticmethod
+    def stop():
+        execute('sudo service tor stop')
+        Log.ok('tor service is stopped')
+
+
+def generate_ipset_rules():
+    proc = subprocess.Popen(
+        ["curl -sL http://f.ip.cn/rt/chnroutes.txt | \
+         egrep -v '^\s*$|^\s*#'"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        shell=True
+    )
+
+    all_ips, err = proc.communicate(timeout=5)
+    if err:
+        Log.error('cannot generate ipset rules.')
+        with open('/tmp/ipset.chinaip', 'w') as ipset_file:
+            ipset_file.write('\n')
+            Log.warning('wrote a dumb ipset file. '
+                        'you won\'t be able to bypass proxy '
+                        'for chinese websites')
+
+    all_ips = all_ips.decode('utf-8')
+    all_ips = all_ips.split('\n')
+    filter(lambda x: type(x) != 'int', all_ips)
+
+    with open('/tmp/ipset.chinaip', 'w') as ipset_file:
+        ipset_file.write('create chinaip hash:net\n')
+        for IP in all_ips:
+            if IP:
+                ipset_file.write('add chinaip ' + IP + '\n')
+
+
+def generate_iptables_rules(ip, listen_port=1080):
+    """ Generates rules for iptables
+    """
+    if os.path.exists('/tmp/iptables.shadowsocks'):
+        os.remove('/tmp/iptables.shadowsocks')
+
+    NON_PROXY = [
+        '127.0.0.0/8',
+        '10.0.0.0/8',
+        '172.16.0.0/12',
+        '192.168.0.0/16']
+
+    RESV_IANA = [
+        '0.0.0.0/8',
+        '100.64.0.0/10',
+        '169.254.0.0/16',
+        '192.0.0.0/24',
+        '192.0.2.0/24',
+        '192.88.99.0/24',
+        '198.18.0.0/15',
+        '198.51.100.0/24',
+        '203.0.113.0/24',
+        '224.0.0.0/3',
+        '%s' % ip] # ss-local
+
+    # See https://trac.torproject.org/projects/tor/wiki/doc/TransparentProxy#WARNING
+    # See https://lists.torproject.org/pipermail/tor-talk/2014-March/032503.html
+    # Shadowsocks
+    RULES = '\n'.join([
+        '*nat',
+        ':shadowsocks -',
+        '-A shadowsocks -d 0/8 -j RETURN',
+        '-A shadowsocks -d 127/8 -j RETURN',
+        '-A shadowsocks -d 10/8 -j RETURN',
+        '-A shadowsocks -d 169.254/16 -j RETURN',
+        '-A shadowsocks -d 172.16/12 -j RETURN',
+        '-A shadowsocks -d 192.168/16 -j RETURN',
+        '-A shadowsocks -d 224/4 -j RETURN',
+        '-A shadowsocks -d 240/4 -j RETURN',
+        '-A shadowsocks -d %s -j RETURN' % ip,
+        '-A shadowsocks ! -p icmp -j REDIRECT --to-ports %d' % listen_port,
+        '-A OUTPUT ! -p icmp -j shadowsocks',
+        'COMMIT'
+    ])
+    RULES += '\n'
+
+    if USE_TOR:
+        pass # ignore for now
+        Log.debug('generate iptables: executing iptables rules:\n%s' % TOR_RULES)
+
+        execute('sudo iptables -I OUTPUT ! -o lo ! -d %s ! -s %s -p tcp -m tcp --tcp-flags ACK,FIN ACK,FIN -j DROP' % (self.local_loopback, self.local_loopback))
+        execute('iptables -I OUTPUT ! -o lo ! -d %s ! -s %s -p tcp -m tcp --tcp-flags ACK,RST ACK,RST -j DROP' % (self.local_loopback, self.local_loopback))
+        execute('iptables -t nat -A OUTPUT -m owner --uid-owner %s -j RETURN' % self.tor_uid)
+        execute('iptables -t nat -A OUTPUT -p udp --dport %s -j REDIRECT --to-ports %s' % (self.local_dnsport, self.local_dnsport))
+
+        for net in self.non_tor:
+            execute('iptables -t nat -A OUTPUT -d %s -j RETURN' % net)
+
+        execute('iptables -t nat -A OUTPUT -p tcp --syn -j REDIRECT --to-ports %s' % self.trans_port)
+        execute('iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT')
+
+        for net in self.non_tor:
+            execute('iptables -A OUTPUT -d %s -j ACCEPT' % net)
+
+        execute('iptables -A OUTPUT -m owner --uid-owner %s -j ACCEPT' % self.tor_uid)
+        execute('iptables -A OUTPUT -j REJECT')
+
+    else:
+        Log.debug('generate iptables: writing ss rules:\n%s' % RULES)
+        with open('/tmp/iptables.shadowsocks', 'w') as rules_file:
+            rules_file.write(RULES)
+
+    Log.ok('generated iptables rules')
+
+
+def remove_iptables_rules(chain):
+    execute("sudo iptables -t nat -F %s" % chain, no_fail=True)
+    Log.ok('iptables rules are removed')
+
+
+def remove_ipset_rules():
+    execute("sudo ipset -X chinaip", no_fail=True)
+    Log.ok('ipset rules are removed')
+
+
+def apply_iptables_rules():
+    execute('sudo iptables-restore < /tmp/iptables.shadowsocks')
+    Log.ok('iptables rules are applied')
+
+
+def apply_ipset_rules():
+    execute("sudo ipset -R < /tmp/ipset.chinaip")
+    Log.ok('ipset rules are applied')
+
+
+def ping_jsonip():
+    Log.info('making a request to detect public ip')
+    try:
+        public_ip = json.load(request.urlopen('http://jsonip.com/',
+                                              timeout=5)).get('ip')
+        Log.ok('public ip is: %s' % public_ip)
+
+    except URLError:
+        Log.error('cannot get public ip')
+
+
+def prompt_ip():
+    all_hosts = []
+
+    Log.info('prompting user for ip')
+    for H in Shadowsocks._HOSTS_LIST:
+        ips = get_ip_list(H)
+        print("host: %s ips: %s" % (H, " ".join(ips)))
+        all_hosts += ips
+
+    for idx in range(len(all_hosts)):
+        print("{} -- {}".format(idx, all_hosts[idx]))
+
+    idx = int(input('which ip do you want to use? >> '))
+    return all_hosts[idx]
+
+
+def proxy_start(ip):
+    Log.ok('will tunnel to ip: %s' % ip)
+
+    Log.info('staring proxies')
+    Shadowsocks.start_local(ip)
+    if not USE_TOR:
+        Shadowsocks.start_redir(ip)
+
+    if USE_TOR: Tor.setup()
+    Privoxy.start()
+
+    if not os.path.exists('/tmp/ipset.chinaip'):
+        Log.info('generating ipset rules to bypass chinese websites')
+        generate_ipset_rules()
+
+    Log.info("regenerating iptables rules for ip: %s" % ip)
+    generate_iptables_rules(ip)
+
+    if not USE_TOR:
+        Log.info("applying packet redirection rules")
+        apply_ipset_rules()
+        apply_iptables_rules()
+
+
+def proxy_stop():
+    Log.info('removing rules')
+    remove_iptables_rules('shadowsocks')
+    remove_ipset_rules()
+
+    Log.info('killing proxies')
+    Privoxy.stop()
+    Shadowsocks.stop()
+    Tor.stop()
+
+
+def setup_proxy():
+    Log.info('installing dependencies')
+    execute('sudo apt -y update')
+    execute('sudo apt -y install shadowsocks-libev privoxy tor net-tools ipset iptables')
+
+    Log.ok('dependencies installed')
+
+    _e = os.system("grep 'forward-socks5 / 127.0.0.1:1081 .' /etc/privoxy/config > /dev/null")
+    if _e != 0:
+        Log.info('setting up privoxy')
+        execute('sudo sh -c \'echo "forward-socks5 / 127.0.0.1:1081 ." >> /etc/privoxy/config\'')
+        execute('sudo service privoxy restart')
+
+        Log.ok('privoxy is ready')
+
+    Log.info('creating log files for socks')
+    execute('sudo touch /var/log/ss-local.log /var/log/ss-redir.log')
+    execute('sudo chown %s /var/log/ss-local.log /var/log/ss-redir.log' \
+            % os.environ['USER'])
+
+    Log.ok('log files are created')
+
+
+if __name__ == '__main__':
+    parser = ArgumentParser(
+        description = 'Proxy setup scripts for Tor,'
+                      'Shadowsocks and Privoxy')
+
+    parser.add_argument('-s',
+                        '--start',
+                        action='store_true',
+                        help='starts proxy')
+
+    parser.add_argument('-k',
+                        '--kill',
+                        action='store_true',
+                        help='kills proxy')
+
+    parser.add_argument('-r',
+                        '--restart',
+                        action='store_true',
+                        help='restarts proxy')
+
+    parser.add_argument('-i',
+                        '--install',
+                        action='store_true',
+                        help='install deps and setup proxy')
+
+    # parser.add_argument('-t',
+    #                     '--tor',
+    #                     action='store_true',
+    #                     help='Use tor layer')
+
+    parser.add_argument('-D',
+                        '--dry',
+                        action='store_true',
+                        help='Do not execute any commands')
+
+    parser.add_argument('-v',
+                        '--verbose',
+                        action='store_true',
+                        help='Run in debug mode')
+
+    args = parser.parse_args()
+    DEBUG = args.verbose
+    DRY_RUN = args.dry
+    # USE_TOR = args.tor
+
+    if not (args.start or args.kill or args.restart):
+        args.start = True
+
+    Log.info('getting local ip address')
+    e, INET_ADDR =  subprocess.getstatusoutput("ifconfig %s | grep 192 | awk '{print $2}'" % OUT_IF)
+    Log.ok('INET ADDR: %s on interface %s' % (INET_ADDR, OUT_IF), pref=' ')
+
+    try:
+        if args.install:
+            setup_proxy()
+
+        elif args.start:
+            selected_ip = prompt_ip()
+            proxy_start(selected_ip)
+            ping_jsonip()
+
+        elif args.kill:
+            proxy_stop()
+
+        elif args.restart:
+            proxy_stop()
+            selected_ip = prompt_ip()
+            proxy_start(selected_ip)
+            ping_jsonip()
+
+    except CommandFailed as exp:
+        Log.error('command failed to execute')
+        if DEBUG:
+            Log.error(exp)
+        else:
+            Log.error('run in debug mode to see more details.')
