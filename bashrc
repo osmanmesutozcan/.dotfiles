@@ -168,3 +168,4 @@ eval "$(pyenv virtualenv-init -)"
 # Temp
 # --------------------------------------------------------------------------------
 alias awscli="/Users/osmanmesutozcan/.pyenv/versions/productreview/bin"
+echo -ne "\e]12;#00ff00\a"
