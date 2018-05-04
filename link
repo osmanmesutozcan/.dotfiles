@@ -8,6 +8,4 @@ ln -sfv $DOTFILES/bashrc ~/.bashrc
 ln -sfv $DOTFILES/bash_profile ~/.bash_profile
 ln -sfv $DOTFILES/gdbinit ~/.gdbinit
 
-if [[ -d "~/.config/nvim" ]]; then
-    ln -sfv $DOTFILES/vimrc $HOME/.config/nvim
-fi
+ln -sfv $DOTFILES/vimrc $HOME/.config/nvim/init.vim
