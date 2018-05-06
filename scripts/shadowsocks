@@ -58,6 +58,7 @@ DRY_RUN = True
 USE_TOR = False
 INET_ADDR = None
 OUT_IF = CONFIG['outbound_interface']
+ONLY_LOCAL = False
 
 
 class Log:
@@ -365,7 +366,7 @@ def proxy_start(ip):
 
     Log.info('staring proxies')
     Shadowsocks.start_local(ip)
-    if not USE_TOR:
+    if not USE_TOR and not ONLY_LOCAL:
         Shadowsocks.start_redir(ip)
 
     if USE_TOR: Tor.setup()
@@ -375,10 +376,11 @@ def proxy_start(ip):
         Log.info('generating ipset rules to bypass chinese websites')
         generate_ipset_rules()
 
-    Log.info("regenerating iptables rules for ip: %s" % ip)
-    generate_iptables_rules(ip)
+    if not ONLY_LOCAL:
+        Log.info("regenerating iptables rules for ip: %s" % ip)
+        generate_iptables_rules(ip)
 
-    if not USE_TOR:
+    if not USE_TOR and not ONLY_LOCAL:
         Log.info("applying packet redirection rules")
         apply_ipset_rules()
         apply_iptables_rules()
@@ -433,6 +435,11 @@ if __name__ == '__main__':
                         action='store_true',
                         help='kills proxy')
 
+    parser.add_argument('-l',
+                        '--local',
+                        action='store_true',
+                        help='only ss-local')
+
     parser.add_argument('-r',
                         '--restart',
                         action='store_true',
@@ -461,6 +468,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     DEBUG = args.verbose
     DRY_RUN = args.dry
+    ONLY_LOCAL = args.local
     # USE_TOR = args.tor
 
     if not (args.start or args.kill or args.restart):
