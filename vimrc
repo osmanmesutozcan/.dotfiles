@@ -93,7 +93,7 @@ set statusline+=\ %P                            "percent through file
 " highlight statusline cterm=reverse
 
 
-" Seperator
+" Separator
 set fillchars+=vert:│ 
 set fillchars+=stl:─
 set fillchars+=stlnc:─
